@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        body {
+            background: url("{{ url_for('static', filename='sky.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+        }
+
+        #map-container {
+            margin: auto;
+        }
+
+        .jumbotron {
+            background-color: rgba(255, 255, 255, 0.564);
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        .form-control {
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.584);
+            margin-bottom: 20px;
+            width: auto;
+            border: 3.5px solid white; /* Set the border width and style */
+            border-image-slice: 1;
+        }
+
+        .row {
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        h1{
+            color: #000000;
+            font: small-caps bold 40px/1 sans-serif;
+        }
+
+        h4, h5, p {
+            color: #000000;
+            font: 1rem "Fira Sans", sans-serif;
+        }
+
+        h2 {
+            color: #000000;
+            font: 1.4rem "Fira Sans", sans-serif;
+        }
+
+
+
+    </style>
+    <title>Whats The Weather</title>
+</head>
+
+<body>
+    
+    <div class="jumbotron text-center">
+        <h1>Weather Forecast</h1>
+        <br>
+        <form action="/" method="post">
+            <input class="text-center form-control" type="text" name="place" placeholder="Location">
+            <br>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    {% if method == 'not found' %}
+    <img src="/static/notfound.png" style="width:12%;height:12%px; margin-left: 44%;" name="img">
+    {% endif %}
+
+    {% if method == 'post' %}
+    <div class="card" style="margin-left: 42%;margin-right: 42%">
+    <h2 class="text-center" style="margin-top: 2%;" name="city">{{FullPlace}}</h2>
+    <h5 class="text-center">🌡️:{{current_temp[0]}}°C</h5>
+    <h5 class="text-center">💧:{{current_temp[1]}}%</h5>
+    </div>
+    <div class="row d-flex justify-content-center">
+        {% for key,value in form_data.items() %}
+        <div class="col mb-1">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="card-title">{{key}}</h2>
+                    <p class="card-text">☀️:{{value[0]}}°C</p>
+                    <p class="card-text">🌒:{{value[1]}}°C</p>
+                    <p class="card-text">💧:{{value[2]}}%</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    
+    
+    <div id="map-container" data-latitude="{{ lat }}" data-longitude="{{ lon }}"></div>
+
+    <script>
+        var container = document.getElementById('map-container');
+        var latitude = container.dataset.latitude;
+        var longitude = container.dataset.longitude;
+
+        var bboxMinLon = parseFloat(longitude) - 0.005;
+        var bboxMinLat = parseFloat(latitude) - 0.005;
+        var bboxMaxLon = parseFloat(longitude) + 0.005;
+        var bboxMaxLat = parseFloat(latitude) + 0.005;
+
+        var mapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=" +
+                     bboxMinLon + "," + bboxMinLat + "," + bboxMaxLon + "," + bboxMaxLat +
+                     "&layer=mapnik";
+
+        var iframe = document.createElement("iframe");
+        iframe.frameborder = "0";
+        iframe.width = "100%";
+        iframe.height = "100%";
+        iframe.style.border = "solid 3.5px white";
+        iframe.src = mapUrl;
+        iframe.allowfullscreen = "";
+
+        container.appendChild(iframe);
+    </script>
+    <button class="btn btn-primary" onclick="window.location.href='/download_image'">Download Image</button>
+    <button class="btn btn-primary" onclick="window.location.href='/save_to_dynamo'">Export to Dynamo</button>
+    {% endif %}
+    <div class="card" style="margin-left: 42%;margin-right: 42%">
+        <h2 class="text-center" style="margin-top: 2%;">🐋{{container}}🐋</h2>
+    </div>
+</body>
+
+</html>
+
